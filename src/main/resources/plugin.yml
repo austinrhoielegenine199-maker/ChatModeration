@@ -4,3 +4,18 @@ main: me.chatmoderation.ChatModeration
 api-version: '1.21'
 author: ArchiveAustin
 description: Advanced chat moderation plugin
+
+commands:
+  chatmoderation:
+    description: ChatModeration main command
+    aliases: [cm]
+    usage: /chatmoderation reload
+
+permissions:
+  chatmoderation.reload:
+    description: Reload ChatModeration configuration
+    default: op
+
+  chatmoderation.bypass:
+    description: Bypass chat moderation
+    default: op
