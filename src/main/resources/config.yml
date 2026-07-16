@@ -1,0 +1,70 @@
+# =========================
+#     ChatModeration
+# =========================
+
+settings:
+  enabled: true
+
+  # Permission to bypass all chat filters
+  bypass-permission: "chatmoderation.bypass"
+
+
+# =========================
+#       Word Filter
+# =========================
+
+word-filter:
+  enabled: true
+
+  # Words that will be blocked
+  blocked-words:
+    - "badword1"
+    - "badword2"
+
+  # Message sent when a blocked word is detected
+  message: "&cPlease keep the chat clean."
+
+
+# =========================
+#    Anti Advertisement
+# =========================
+
+anti-advertising:
+  enabled: true
+
+  # Block IP addresses like 123.123.123.123
+  block-ips: true
+
+  # Block Discord invite links
+  block-discord: true
+
+  message: "&cAdvertising is not allowed."
+
+
+# =========================
+#        Anti Caps
+# =========================
+
+anti-caps:
+  enabled: true
+
+  # Minimum message length before caps detection
+  minimum-length: 8
+
+  # Percentage of uppercase letters required
+  uppercase-percentage: 70
+
+  message: "&cPlease do not use excessive caps."
+
+
+# =========================
+#        Anti Spam
+# =========================
+
+anti-spam:
+  enabled: true
+
+  # Seconds between each message
+  cooldown: 2
+
+  message: "&cPlease slow down."
