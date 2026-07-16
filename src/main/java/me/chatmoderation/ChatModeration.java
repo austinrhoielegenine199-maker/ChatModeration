@@ -137,6 +137,51 @@ public class ChatModeration extends JavaPlugin implements Listener {
                 return;
             }
         }
+
+        // =========================
+        //        ANTI-CAPS
+        // =========================
+
+        if (getConfig().getBoolean(
+                "anti-caps.enabled"
+        )) {
+
+            int uppercaseLetters = 0;
+
+            for (char character : message.toCharArray()) {
+
+                if (Character.isUpperCase(character)) {
+                    uppercaseLetters++;
+                }
+            }
+
+            int maxUppercase =
+                    getConfig().getInt(
+                            "anti-caps.max-uppercase",
+                            5
+                    );
+
+            // 5 or more uppercase letters = blocked
+            if (uppercaseLetters >= maxUppercase) {
+
+                event.setCancelled(true);
+
+                String capsMessage =
+                        getConfig().getString(
+                                "anti-caps.message",
+                                "&cPlease do not use excessive caps."
+                        );
+
+                event.getPlayer().sendMessage(
+                        ChatColor.translateAlternateColorCodes(
+                                '&',
+                                capsMessage
+                        )
+                );
+
+                return;
+            }
+        }
     }
 
     // =========================
@@ -157,33 +202,4 @@ public class ChatModeration extends JavaPlugin implements Listener {
         if (args.length == 1
                 && args[0].equalsIgnoreCase("reload")) {
 
-            if (!sender.hasPermission(
-                    "chatmoderation.reload"
-            )) {
-
-                sender.sendMessage(
-                        ChatColor.RED
-                                + "You do not have permission to do that."
-                );
-
-                return true;
-            }
-
-            reloadConfig();
-
-            sender.sendMessage(
-                    ChatColor.GREEN
-                            + "ChatModeration configuration reloaded!"
-            );
-
-            return true;
-        }
-
-        sender.sendMessage(
-                ChatColor.YELLOW
-                        + "Usage: /chatmoderation reload"
-        );
-
-        return true;
-    }
-}
+            if (!
