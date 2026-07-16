@@ -8,9 +8,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class ChatModeration extends JavaPlugin implements Listener {
+
+    private final HashMap<UUID, Long> lastMessage = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -39,10 +43,7 @@ public class ChatModeration extends JavaPlugin implements Listener {
         String message = event.getMessage();
         String lowerMessage = message.toLowerCase();
 
-        // =========================
-        //        WORD FILTER
-        // =========================
-
+        // WORD FILTER
         if (getConfig().getBoolean("word-filter.enabled")) {
 
             List<String> blockedWords =
@@ -74,27 +75,21 @@ public class ChatModeration extends JavaPlugin implements Listener {
             }
         }
 
-        // =========================
-        //    ANTI-ADVERTISING
-        // =========================
-
+        // ANTI-ADVERTISING
         if (getConfig().getBoolean(
                 "anti-advertising.enabled"
         )) {
 
             boolean isAdvertisement = false;
 
-            // Detect IP addresses
             if (getConfig().getBoolean(
                     "anti-advertising.block-ips"
             ) && message.matches(
                     ".*\\d{1,3}(\\.\\d{1,3}){3}.*"
             )) {
-
                 isAdvertisement = true;
             }
 
-            // Detect Discord invites
             if (getConfig().getBoolean(
                     "anti-advertising.block-discord"
             ) && (
@@ -103,17 +98,14 @@ public class ChatModeration extends JavaPlugin implements Listener {
                             "discord.com/invite/"
                     )
             )) {
-
                 isAdvertisement = true;
             }
 
-            // Detect domains
             if (getConfig().getBoolean(
                     "anti-advertising.block-domains"
             ) && lowerMessage.matches(
                     ".*\\b[a-z0-9-]+\\.(com|net|org|xyz|to|fun|gg|me|tk|ml|ga|cf|pw)\\b.*"
             )) {
-
                 isAdvertisement = true;
             }
 
@@ -138,10 +130,7 @@ public class ChatModeration extends JavaPlugin implements Listener {
             }
         }
 
-        // =========================
-        //        ANTI-CAPS
-        // =========================
-
+        // ANTI-CAPS
         if (getConfig().getBoolean(
                 "anti-caps.enabled"
         )) {
@@ -161,7 +150,6 @@ public class ChatModeration extends JavaPlugin implements Listener {
                             5
                     );
 
-            // 5 or more uppercase letters = blocked
             if (uppercaseLetters >= maxUppercase) {
 
                 event.setCancelled(true);
@@ -182,11 +170,57 @@ public class ChatModeration extends JavaPlugin implements Listener {
                 return;
             }
         }
-    }
 
-    // =========================
-    //      RELOAD COMMAND
-    // =========================
+        // ANTI-SPAM
+        if (getConfig().getBoolean(
+                "anti-spam.enabled"
+        )) {
+
+            UUID playerUUID =
+                    event.getPlayer().getUniqueId();
+
+            long currentTime =
+                    System.currentTimeMillis();
+
+            long cooldown =
+                    getConfig().getLong(
+                            "anti-spam.cooldown",
+                            2
+                    ) * 1000;
+
+            if (lastMessage.containsKey(playerUUID)) {
+
+                long timeSinceLastMessage =
+                        currentTime
+                                - lastMessage.get(playerUUID);
+
+                if (timeSinceLastMessage < cooldown) {
+
+                    event.setCancelled(true);
+
+                    String spamMessage =
+                            getConfig().getString(
+                                    "anti-spam.message",
+                                    "&cPlease slow down."
+                            );
+
+                    event.getPlayer().sendMessage(
+                            ChatColor.translateAlternateColorCodes(
+                                    '&',
+                                    spamMessage
+                            )
+                    );
+
+                    return;
+                }
+            }
+
+            lastMessage.put(
+                    playerUUID,
+                    currentTime
+            );
+        }
+    }
 
     // /chatmoderation reload
     // /cm reload
@@ -202,4 +236,33 @@ public class ChatModeration extends JavaPlugin implements Listener {
         if (args.length == 1
                 && args[0].equalsIgnoreCase("reload")) {
 
-            if (!
+            if (!sender.hasPermission(
+                    "chatmoderation.reload"
+            )) {
+
+                sender.sendMessage(
+                        ChatColor.RED
+                                + "You do not have permission to do that."
+                );
+
+                return true;
+            }
+
+            reloadConfig();
+
+            sender.sendMessage(
+                    ChatColor.GREEN
+                            + "ChatModeration configuration reloaded!"
+            );
+
+            return true;
+        }
+
+        sender.sendMessage(
+                ChatColor.YELLOW
+                        + "Usage: /chatmoderation reload"
+        );
+
+        return true;
+    }
+                    }
