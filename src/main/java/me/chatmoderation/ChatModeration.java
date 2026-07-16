@@ -28,16 +28,21 @@ public class ChatModeration extends JavaPlugin implements Listener {
             return;
         }
 
-        if (event.getPlayer().hasPermission(
-                getConfig().getString("settings.bypass-permission")
-        )) {
+        String bypassPermission =
+                getConfig().getString("settings.bypass-permission");
+
+        if (bypassPermission != null
+                && event.getPlayer().hasPermission(bypassPermission)) {
             return;
         }
 
         String message = event.getMessage();
         String lowerMessage = message.toLowerCase();
 
-        // Word Filter
+        // =========================
+        //        WORD FILTER
+        // =========================
+
         if (getConfig().getBoolean("word-filter.enabled")) {
 
             List<String> blockedWords =
@@ -68,10 +73,79 @@ public class ChatModeration extends JavaPlugin implements Listener {
                 }
             }
         }
+
+        // =========================
+        //    ANTI-ADVERTISING
+        // =========================
+
+        if (getConfig().getBoolean(
+                "anti-advertising.enabled"
+        )) {
+
+            boolean isAdvertisement = false;
+
+            // Detect IP addresses
+            if (getConfig().getBoolean(
+                    "anti-advertising.block-ips"
+            ) && message.matches(
+                    ".*\\d{1,3}(\\.\\d{1,3}){3}.*"
+            )) {
+
+                isAdvertisement = true;
+            }
+
+            // Detect Discord invites
+            if (getConfig().getBoolean(
+                    "anti-advertising.block-discord"
+            ) && (
+                    lowerMessage.contains("discord.gg/")
+                            || lowerMessage.contains(
+                            "discord.com/invite/"
+                    )
+            )) {
+
+                isAdvertisement = true;
+            }
+
+            // Detect domains
+            if (getConfig().getBoolean(
+                    "anti-advertising.block-domains"
+            ) && lowerMessage.matches(
+                    ".*\\b[a-z0-9-]+\\.(com|net|org|xyz|to|fun|gg|me|tk|ml|ga|cf|pw)\\b.*"
+            )) {
+
+                isAdvertisement = true;
+            }
+
+            if (isAdvertisement) {
+
+                event.setCancelled(true);
+
+                String advertisementMessage =
+                        getConfig().getString(
+                                "anti-advertising.message",
+                                "&cAdvertising is not allowed."
+                        );
+
+                event.getPlayer().sendMessage(
+                        ChatColor.translateAlternateColorCodes(
+                                '&',
+                                advertisementMessage
+                        )
+                );
+
+                return;
+            }
+        }
     }
+
+    // =========================
+    //      RELOAD COMMAND
+    // =========================
 
     // /chatmoderation reload
     // /cm reload
+
     @Override
     public boolean onCommand(
             CommandSender sender,
@@ -112,4 +186,4 @@ public class ChatModeration extends JavaPlugin implements Listener {
 
         return true;
     }
-                              }
+}
