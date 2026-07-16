@@ -52,11 +52,8 @@ anti-advertising:
 anti-caps:
   enabled: true
 
-  # Minimum message length before caps detection
-  minimum-length: 8
-
-  # Percentage of uppercase letters required
-  uppercase-percentage: 70
+  # 5 or more uppercase letters = blocked
+  max-uppercase: 5
 
   message: "&cPlease do not use excessive caps."
 
