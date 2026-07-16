@@ -1,0 +1,6 @@
+name: ChatModeration
+version: 1.0.0
+main: me.chatmoderation.ChatModeration
+api-version: '1.21'
+author: ArchiveAustin
+description: Advanced chat moderation plugin
