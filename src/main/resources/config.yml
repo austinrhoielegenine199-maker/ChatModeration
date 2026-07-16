@@ -1,11 +1,12 @@
 # =========================
 #     ChatModeration
 # =========================
-# Made by ArchiveAustin
+# Made By ArchiveAustin
+
 settings:
   enabled: true
 
-  # Permission to bypass all chat filters
+  # Permission to bypass all chat moderation
   bypass-permission: "chatmoderation.bypass"
 
 
@@ -32,11 +33,14 @@ word-filter:
 anti-advertising:
   enabled: true
 
-  # Block IP addresses like 123.123.123.123
+  # Blocks IP addresses like 123.123.123.123
   block-ips: true
 
-  # Block Discord invite links
+  # Blocks Discord invites
   block-discord: true
+
+  # Blocks domains like server.com, server.xyz, server.fun
+  block-domains: true
 
   message: "&cAdvertising is not allowed."
 
